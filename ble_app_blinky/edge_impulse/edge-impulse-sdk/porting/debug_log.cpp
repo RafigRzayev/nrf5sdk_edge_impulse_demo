@@ -20,8 +20,7 @@
  * SOFTWARE.
  */
 
-#include "../ei_classifier_porting.h"
-#if EI_PORTING_MINGW32 == 1
+#include "ei_classifier_porting.h"
 
 #include "edge-impulse-sdk/tensorflow/lite/micro/debug_log.h"
 #include <stdio.h>
@@ -32,7 +31,6 @@
 extern "C"
 #endif // defined(__cplusplus) && EI_C_LINKAGE == 1
 void DebugLog(const char* s) {
-    ei_printf("%s", s);
+    //ei_printf("%s", s);
 }
 
-#endif // EI_PORTING_MINGW32 == 1

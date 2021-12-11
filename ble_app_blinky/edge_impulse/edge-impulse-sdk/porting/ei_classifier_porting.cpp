@@ -20,17 +20,9 @@
  * SOFTWARE.
  */
 
-#include "../ei_classifier_porting.h"
-#if EI_PORTING_MINGW32 == 1
-
-#include <inttypes.h>
-#include <math.h>
-#include <stdio.h>
-#include <chrono>
-#include <unistd.h>
-#include <stdarg.h>
+#include "ei_classifier_porting.h"
 #include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
 EI_IMPULSE_ERROR ei_run_impulse_check_canceled() {
     return EI_IMPULSE_OK;
@@ -40,33 +32,35 @@ EI_IMPULSE_ERROR ei_run_impulse_check_canceled() {
  * Cancelable sleep, can be triggered with signal from other thread
  */
 EI_IMPULSE_ERROR ei_sleep(int32_t time_ms) {
-    usleep(time_ms * 1000);
+    //usleep(time_ms * 1000);
     return EI_IMPULSE_OK;
 }
 
 uint64_t ei_read_timer_ms() {
-    auto now = std::chrono::system_clock::now();
+    /*auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    return static_cast<uint64_t>(millis);
+    return static_cast<uint64_t>(millis);*/
+    return 0;
 }
 
 uint64_t ei_read_timer_us() {
-    auto now = std::chrono::system_clock::now();
+    /*auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-    return static_cast<uint64_t>(micros);
+    return static_cast<uint64_t>(micros);*/
+    return 0;
 }
 
 void ei_printf(const char *format, ...) {
-    va_list myargs;
+    /*va_list myargs;
     va_start(myargs, format);
     vprintf(format, myargs);
-    va_end(myargs);
+    va_end(myargs);*/
 }
 
 void ei_printf_float(float f) {
-    ei_printf("%f", f);
+    //ei_printf("%f", f);
 }
 
 void *ei_malloc(size_t size) {
@@ -80,5 +74,3 @@ void *ei_calloc(size_t nitems, size_t size) {
 void ei_free(void *ptr) {
     free(ptr);
 }
-
-#endif // EI_PORTING_MINGW32 == 1
