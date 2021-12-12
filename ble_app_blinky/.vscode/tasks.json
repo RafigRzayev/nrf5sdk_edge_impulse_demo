@@ -1,0 +1,57 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "pca10040/s132/armgcc"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        }, 
+        {
+            "label": "flash application",
+            "type": "shell",
+            "command": "make flash",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "pca10040/s132/armgcc"
+            },
+            "dependsOn": "build"
+        }, 
+        {
+            "label": "flash softdevice",
+            "type": "shell",
+            "command": "make flash_softdevice",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "pca10040/s132/armgcc"
+            }
+        }, 
+        {
+            "label": "erase all",
+            "type": "shell",
+            "command": "make erase",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "pca10040/s132/armgcc"
+            }
+        }, 
+        {
+            "label": "edit sdk_config",
+            "type": "shell",
+            "command": "make sdk_config",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "pca10040/s132/armgcc"
+            }
+        }
+    ]
+}
