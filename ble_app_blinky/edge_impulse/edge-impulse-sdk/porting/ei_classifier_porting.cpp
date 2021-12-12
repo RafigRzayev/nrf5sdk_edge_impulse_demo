@@ -19,7 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+#include "nrf_log.h"
+#include <stdarg.h>
+#include <stdio.h>
 #include "ei_classifier_porting.h"
 #include <stdlib.h>
 #include <stdint.h>
@@ -53,14 +55,16 @@ uint64_t ei_read_timer_us() {
 }
 
 void ei_printf(const char *format, ...) {
-    /*va_list myargs;
-    va_start(myargs, format);
-    vprintf(format, myargs);
-    va_end(myargs);*/
+    static char print_buf[1024] = { 0 };
+    va_list args;
+    va_start(args, format);
+    int r = vsnprintf(print_buf, sizeof(print_buf), format, args);
+    va_end(args);
+    NRF_LOG_INFO("%s", print_buf);
 }
 
 void ei_printf_float(float f) {
-    //ei_printf("%f", f);
+    ei_printf(NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(f));
 }
 
 void *ei_malloc(size_t size) {
