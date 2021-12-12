@@ -3,6 +3,11 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "edge-impulse-sdk/dsp/numpy_types.h"
+#include "edge-impulse-sdk/porting/ei_classifier_porting.h"
+#include "edge-impulse-sdk/classifier/ei_classifier_types.h"
 
 // Pins
 #define BUTTON_1      13 
@@ -16,9 +21,18 @@
 #define BUTTON_3_VAL  235
 #define BUTTON_4_VAL  245
 
-#define THRESHOLD_VAL 230
-
 #define DELAY_MS      300
+
+#define FEATURES_SIZE 1
+
+static float features[FEATURES_SIZE];
+
+int get_feature_data(size_t offset, size_t length, float *out_ptr) {
+    memcpy(out_ptr, features + offset, length * sizeof(float));
+    return 0;
+}
+
+EI_IMPULSE_ERROR run_classifier(signal_t *, ei_impulse_result_t *, bool);
 
 void log_init(void) {
   ret_code_t err_code = NRF_LOG_INIT(NULL);
@@ -39,12 +53,19 @@ void button_init(void) {
 }
 
 void process_input(uint8_t val) {
-  if(val < THRESHOLD_VAL) {
-  nrf_gpio_pin_set(LED);
-  NRF_LOG_INFO("Weather is not sunny\r\n");
-  } else {
-  nrf_gpio_pin_clear(LED);
-  NRF_LOG_INFO("Weather is sunny\r\n");
+  features[0] = val;
+  signal_t signal;
+  signal.total_length = FEATURES_SIZE;
+  signal.get_data = &get_feature_data;
+  ei_impulse_result_t result;
+  EI_IMPULSE_ERROR res = run_classifier(&signal, &result, true);
+  if (result.classification[0].value > 0.5) {
+    nrf_gpio_pin_set(LED);
+    NRF_LOG_INFO("Weather is not sunny\r\n");
+  }
+  else {
+    nrf_gpio_pin_clear(LED);
+    NRF_LOG_INFO("Weather is sunny\r\n");
   }
 }
 
