@@ -4,12 +4,33 @@ OUTPUT_DIRECTORY := _build
 
 SDK_ROOT := ../../../../../..
 PROJ_DIR := ../../..
+EI_DIR   := $(PROJ_DIR)/edge_impulse
 
 $(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
   LINKER_SCRIPT  := ble_app_blinky_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
+  $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/c/common.c \
+  $(EI_DIR)/edge-impulse-sdk/porting/debug_log.cpp \
+  $(EI_DIR)/edge-impulse-sdk/porting/ei_classifier_porting.cpp \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/BasicMathFunctions/*.c) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/FastMathFunctions/*.c) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/StatisticsFunctions/*.c) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*fft*.c) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/CommonTables/*.c) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/CMSIS/DSP/Source/TransformFunctions/*bit*.c) \
+  $(wildcard $(EI_DIR)/tflite-model/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/dsp/kissfft/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/dsp/dct/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/dsp/memory.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/classifier/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/kernels/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/kernels/internal/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/micro/kernels/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/micro/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/micro/memory_planner/*.cpp) \
+  $(wildcard $(EI_DIR)/edge-impulse-sdk/tensorflow/lite/core/api/*.cpp) \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
@@ -67,6 +88,7 @@ SRC_FILES += \
 
 # Include folders common to all targets
 INC_FOLDERS += \
+  $(EI_DIR) \
   $(SDK_ROOT)/components/nfc/ndef/generic/message \
   $(SDK_ROOT)/components/nfc/t2t_lib \
   $(SDK_ROOT)/components/nfc/t4t_parser/hl_detection_procedure \
@@ -206,6 +228,11 @@ OPT = -O3 -g3
 
 # C flags common to all targets
 CFLAGS += $(OPT)
+CFLAGS += -DTF_LITE_DISABLE_X86_NEON=1
+CFLAGS += -DEIDSP_SIGNAL_C_FN_POINTER=1
+CFLAGS += -DEI_C_LINKAGE=1
+CFLAGS += -DEIDSP_USE_CMSIS_DSP=0
+CFLAGS += -DEI_CLASSIFIER_TFLITE_ENABLE_CMSIS_NN=0
 CFLAGS += -DAPP_TIMER_V2
 CFLAGS += -DAPP_TIMER_V2_RTC1_ENABLED
 CFLAGS += -DBOARD_PCA10040
@@ -219,7 +246,7 @@ CFLAGS += -DS132
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS += -Wall -Werror
+CFLAGS += -Wall #-Werror
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -261,7 +288,7 @@ nrf52832_xxaa: ASMFLAGS += -D__STACK_SIZE=8192
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
-LIB_FILES += -lc -lnosys -lm
+LIB_FILES += -lc -lnosys -lm -lstdc++
 
 
 .PHONY: default help
